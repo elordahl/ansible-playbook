@@ -1,7 +1,7 @@
 ---
 # This playbook will configure an ubuntu server for use within our SA Jenkins server 
 
-- hosts: aws 
+- hosts: all
   become: yes
   roles:
     - basic-server
