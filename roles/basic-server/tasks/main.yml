@@ -1,0 +1,21 @@
+---
+#- name: Run Dist-Upgrade
+#  apt: upgrade=dist
+
+- name: Install tasksel package 
+  apt: name=tasksel state=present update_cache=yes cache_valid_time=300
+
+## check for installation, and skip if installed
+- name:  Checking tasksel for Basic Ubuntu Server install
+  shell: tasksel --task-packages server
+  check_mode: no
+  register: tasksel_result
+
+- debug: var=tasksel_result
+
+- name: Install base ubuntu server 
+  apt: name={{item}} state=present
+  with_items: '{{tasksel_result.stdout_lines}}'
+  async: 3600
+  poll: 30
+

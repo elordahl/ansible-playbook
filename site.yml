@@ -1,0 +1,61 @@
+---
+# This playbook will configure an ubuntu server for use within our SA Jenkins server 
+
+- hosts: aws 
+  become: yes
+  roles:
+    - basic-server
+
+  tasks:
+
+  - name: Install pip & kerberos
+    apt: name={{item}} state=present update_cache=yes cache_valid_time=300
+    with_items:
+      - python-pip
+      - python-dev # kerberos
+      - libkrb5-dev # kerberos
+      - krb5-user # kerberos
+      - krb5-config # kerberos
+
+  ## kerberos
+  - name: Install pip packages
+    pip:
+      name: "{{ item.name }}"
+      version: "{{ item.version | default(omit) }}"
+      state: present
+    with_items:
+      - name: kerberos
+      - name: paramiko
+      - name: pywinrm
+        version: 0.1.1
+      - name: PyYAML
+      - name: Jinja2
+      - name: httplib2
+      - name: six
+      - name: requests-kerberos
+      - name: setuptools
+
+  - name: Install apt packages
+    apt: name={{item}} state=present update_cache=yes cache_valid_time=300
+    with_items:
+      - curl
+      - git
+      - git-lfs
+      - zip
+      - unzip
+      - dnsutils # nslookup
+      - python-urllib3
+      - python-openssl
+
+  - name: Git clone ansible
+    become: no
+    git: repo=https://github.com/ansible/ansible.git dest=~/ansible version=v2.3.0.0-1 recursive=yes
+
+  - apt: autoremove=yes name=curl
+
+  - name: restart machine
+    shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+    async: 1
+    poll: 0
+    ignore_errors: true
+
