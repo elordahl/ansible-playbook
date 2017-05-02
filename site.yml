@@ -8,7 +8,7 @@
 
   tasks:
 
-  - name: Install pip & kerberos
+  - name: Install pip & kerberos deps
     apt: name={{item}} state=present update_cache=yes cache_valid_time=300
     with_items:
       - python-pip
@@ -16,8 +16,8 @@
       - libkrb5-dev # kerberos
       - krb5-user # kerberos
       - krb5-config # kerberos
+      - libssl-dev
 
-  ## kerberos
   - name: Install pip packages
     pip:
       name: "{{ item.name }}"
@@ -25,11 +25,8 @@
       state: present
     with_items:
       - name: kerberos
-      - name: paramiko
       - name: pywinrm
         version: 0.1.1
-      - name: PyYAML
-      - name: Jinja2
       - name: httplib2
       - name: six
       - name: requests-kerberos
@@ -51,7 +48,11 @@
     become: no
     git: repo=https://github.com/ansible/ansible.git dest=~/ansible version=v2.3.0.0-1 recursive=yes
 
-  - apt: autoremove=yes name=curl
+  - name: Install ansible requirements
+    pip:
+      requirements: "~/ansible/requirements.txt"
+
+  - apt: autoremove=yes
 
   - name: restart machine
     shell: sleep 2 && shutdown -r now "Ansible updates triggered"
