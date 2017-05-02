@@ -37,7 +37,6 @@
     with_items:
       - curl
       - git
-      - git-lfs
       - zip
       - unzip
       - dnsutils # nslookup
