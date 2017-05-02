@@ -51,6 +51,16 @@
     pip:
       requirements: "~/ansible/requirements.txt"
 
+  - name: Updating .profile for ansible
+    become: no
+    blockinfile:
+      path: ~/.profile
+      state: present
+      create: yes
+      block: |
+        source ~/ansible/hacking/env-setup
+        export ANSIBLE_FORCE_COLOR=true
+
   - apt: autoremove=yes
 
   - name: restart machine
